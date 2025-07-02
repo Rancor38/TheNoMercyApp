@@ -20,7 +20,7 @@ After cloning this repository, you can build the app for your platform with a si
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/Rancor38/TheNoMercyApp.git
 cd TheNoMercyApp
 
 # Install dependencies and build the app
