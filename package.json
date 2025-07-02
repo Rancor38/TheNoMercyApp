@@ -1,0 +1,107 @@
+{
+    "name": "thenomercyapp",
+    "private": true,
+    "version": "1.0.0",
+    "type": "module",
+    "main": "electron.js",
+    "homepage": "./",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "lint": "eslint .",
+        "preview": "vite preview",
+        "electron": "electron .",
+        "electron-dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5176 && electron .\"",
+        "build-electron": "npm run build && electron .",
+        "generate-icons": "node generate-icons.js",
+        "prebuild": "npm run generate-icons",
+        "dist": "npm run generate-icons && npm run build && electron-builder",
+        "dist-mac": "npm run generate-icons && npm run build && electron-builder --mac",
+        "install-app": "node install-app.js"
+    },
+    "build": {
+        "appId": "com.nomercytracker.app",
+        "productName": "No Mercy Tracker",
+        "directories": {
+            "output": "release"
+        },
+        "files": [
+            "dist/**/*",
+            "build-assets/**/*",
+            "node_modules/**/*",
+            "electron.js",
+            "preload.js",
+            "package.json"
+        ],
+        "mac": {
+            "category": "public.app-category.games",
+            "icon": "build-assets/icon.icns",
+            "target": [
+                {
+                    "target": "dmg",
+                    "arch": [
+                        "x64",
+                        "arm64"
+                    ]
+                }
+            ]
+        },
+        "dmg": {
+            "title": "No Mercy Tracker",
+            "icon": "build-assets/icon.icns"
+        },
+        "win": {
+            "target": [
+                {
+                    "target": "nsis",
+                    "arch": [
+                        "x64",
+                        "ia32"
+                    ]
+                }
+            ],
+            "icon": "build-assets/icon.ico"
+        },
+        "linux": {
+            "target": [
+                {
+                    "target": "AppImage",
+                    "arch": [
+                        "x64"
+                    ]
+                }
+            ],
+            "icon": "build-assets/icon.png",
+            "category": "Game"
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true,
+            "installerIcon": "build-assets/icon.ico",
+            "uninstallerIcon": "build-assets/icon.ico"
+        }
+    },
+    "dependencies": {
+        "electron-is-dev": "^3.0.1",
+        "react": "^19.1.0",
+        "react-dom": "^19.1.0"
+    },
+    "devDependencies": {
+        "@electron/rebuild": "^4.0.1",
+        "@eslint/js": "^9.29.0",
+        "@types/react": "^19.1.8",
+        "@types/react-dom": "^19.1.6",
+        "@vitejs/plugin-react": "^4.5.2",
+        "concurrently": "^9.2.0",
+        "electron": "^37.1.0",
+        "electron-builder": "^26.0.12",
+        "eslint": "^9.29.0",
+        "eslint-plugin-react-hooks": "^5.2.0",
+        "eslint-plugin-react-refresh": "^0.4.20",
+        "globals": "^16.2.0",
+        "png2icons": "^2.0.1",
+        "sharp": "^0.34.2",
+        "vite": "^7.0.0",
+        "wait-on": "^8.0.3"
+    }
+}
