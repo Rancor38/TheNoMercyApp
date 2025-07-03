@@ -22,10 +22,20 @@ No Mercy Tracker is a **desktop application** designed for serious Overwatch pla
 
 -   📊 **Statistical Analysis**: Compare win rates with and without Mercy banned
 -   📝 **Game Tracking**: Log matches with date, ban status, results, and notes
--   💾 **Local Data Storage**: Your data stays private and secure on your device
+-   💾 **Persistent Data Storage**: Your data automatically saves and survives app restarts
+-   🛠️ **Debug Tools**: Built-in data management and troubleshooting panel
 -   🎨 **Professional UI**: Clean, intuitive interface optimized for quick data entry
 -   🔄 **Auto-Updates**: Stay current with the latest features automatically
 -   🌐 **Cross-Platform**: Works on macOS, Windows, and Linux
+-   🔒 **Privacy-First**: All data stays local on your device
+
+### **✨ Latest Updates (v1.0.1)**
+
+-   🔧 **Fixed Data Persistence**: Games now properly save when closing/reopening the app
+-   🛠️ **Added Debug Panel**: Manual save controls and data path visibility
+-   📁 **Improved Data Storage**: Production data now saves to Documents folder
+-   🔍 **Enhanced Logging**: Better feedback for data operations
+-   ✅ **Empty State Persistence**: Deleting all games now properly saves empty state
 
 ---
 
@@ -219,12 +229,21 @@ npm run publish        # Build + publish to GitHub releases
 -   **Game counters** showing total matches tracked
 -   **Performance trends** over time
 
-### **Data Management**
+### **Data Management & Persistence**
 
--   **Auto-save** to CSV format
--   **Import/Export** functionality
--   **Backup-friendly** file format
--   **Privacy-first** - no cloud data collection
+-   **Auto-save** to CSV format with real-time persistence
+-   **Debug panel** with manual save controls and data path display
+-   **Reliable storage** - data survives app restarts and updates
+-   **Smart data paths** - development vs production data separation
+-   **Backup-friendly** CSV format that's human-readable
+-   **Privacy-first** - no cloud data collection, everything stays local
+
+### **Enhanced User Experience**
+
+-   **Collapsible debug tools** for power users and troubleshooting
+-   **Real-time save feedback** with status messages
+-   **Data persistence indicators** showing loading and save states
+-   **Manual save option** for additional peace of mind
 
 ### **Professional Polish**
 
@@ -247,6 +266,26 @@ npm run publish        # Build + publish to GitHub releases
 | **Icons missing**                                   | Ensure `public/no-mercy.png` exists in the project folder                   |
 | **App won't start on Windows**                      | Check Windows Defender/antivirus settings, add exception for the app        |
 | **Updates failing**                                 | Make sure you have internet connection and GitHub access                    |
+| **Data not persisting (games disappearing)**        | Use the debug panel to check data path and manually save                    |
+| **Can't find saved games after app restart**        | Check `~/Documents/No Mercy Tracker/` folder for your data file             |
+| **Debug panel shows wrong data path**               | Restart the app - it should detect production vs development mode correctly |
+
+### **Data Persistence Troubleshooting**
+
+**Problem: "My games disappear when I close the app"**
+
+1. ✅ **Check the debug panel** - expand "Debug Info & Manual Controls"
+2. ✅ **Verify data path** - should show `~/Documents/No Mercy Tracker/games-data.csv` in production
+3. ✅ **Use manual save** - click the "💾 Manual Save" button to force a save
+4. ✅ **Check file permissions** - ensure you can write to the Documents folder
+5. ✅ **Look for the CSV file** - navigate to the path shown in debug panel
+
+**Problem: "Debug panel shows I have 0 games but I added some"**
+
+1. Wait for the "Games Loaded: Yes" indicator
+2. Try the manual save button
+3. Check if you're running in development mode (different data location)
+4. Restart the app and check again
 
 ### **Step-by-Step Help**
 
@@ -312,37 +351,70 @@ npm test              # Unit tests (if available)
 
 ### **Where Your Data Lives**
 
--   **Location**: Same directory as the app executable
--   **Format**: `games-data.csv` (human-readable)
--   **Backup**: Copy the CSV file to backup your data
+-   **Development Mode**: Project directory (`games-data.csv`)
+-   **Production Mode**: `~/Documents/No Mercy Tracker/games-data.csv`
+-   **Format**: Human-readable CSV with quoted fields
+-   **Backup**: Simply copy the CSV file to backup your data
 -   **Privacy**: **100% local** - no data leaves your device
+
+### **Data Persistence Features**
+
+-   ✅ **Automatic saving** when adding, editing, or deleting games
+-   ✅ **Empty state persistence** - deleting all games saves the empty state
+-   ✅ **Debug tools** - manual save button and data path display
+-   ✅ **Real-time feedback** - save status messages and loading indicators
+-   ✅ **Reliable storage** - data survives app restarts and system reboots
+
+### **Debug Panel (New!)**
+
+The app now includes a collapsible debug panel that shows:
+
+-   📁 Current data file location
+-   📊 Number of games loaded
+-   ✅ Data loading status
+-   💾 Manual save button with feedback
+-   🔍 Development vs production mode indicator
 
 ### **Data Format**
 
 ```csv
 id,date,mercyBanned,won,notes,timestamp
-1,2024-07-02,true,true,"Great teamwork",2024-07-02T10:30:00Z
-2,2024-07-02,false,false,"Mercy caused issues",2024-07-02T11:15:00Z
+1751514112550,2025-07-03,true,true,"Great teamwork",2025-07-03T03:41:52.550Z
+1751514118594,2025-07-03,false,false,"Mercy caused issues",2025-07-03T03:41:58.594Z
 ```
 
 ---
 
 ## 🎯 **Roadmap**
 
-### **Current Version (1.0.0)**
+### **Current Version (1.0.1)**
 
--   ✅ Core game tracking
--   ✅ Win rate statistics
--   ✅ Cross-platform builds
--   ✅ Auto-update system
+-   ✅ Core game tracking with persistent data storage
+-   ✅ Win rate statistics and real-time calculations
+-   ✅ Cross-platform builds (macOS, Windows, Linux)
+-   ✅ Auto-update system with GitHub integration
+-   ✅ **NEW**: Reliable data persistence that survives app restarts
+-   ✅ **NEW**: Debug panel with manual controls and data insights
+-   ✅ **NEW**: Enhanced error handling and user feedback
+-   ✅ **NEW**: Smart data storage locations for dev/production
 
-### **Planned Features**
+### **Recent Improvements (v1.0.1)**
+
+-   🔧 **Fixed Critical Data Loss Issue**: Games now persist properly when closing the app
+-   🛠️ **Added Debug Tools**: Collapsible panel showing data path, save status, and manual controls
+-   📁 **Improved Data Storage**: Production apps now save to `~/Documents/No Mercy Tracker/`
+-   🔍 **Enhanced Logging**: Better console output and user feedback for data operations
+-   ✅ **Empty State Handling**: Deleting all games now properly saves the empty state
+-   💾 **Manual Save Option**: Power users can force saves with visual feedback
+
+### **Planned Features (Future Releases)**
 
 -   📈 **Advanced Analytics**: Trend graphs and deeper insights
 -   🎮 **Hero Integration**: Track other hero bans beyond Mercy
 -   📱 **Mobile Companion**: Sync with mobile app
 -   🌐 **Team Features**: Share data with teammates
 -   🎨 **Themes**: Dark mode and customization options
+-   📊 **Export Options**: PDF reports and advanced data export
 
 ---
 

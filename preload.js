@@ -5,4 +5,7 @@ const { contextBridge, ipcRenderer } = require("electron")
 contextBridge.exposeInMainWorld("electronAPI", {
     loadGames: () => ipcRenderer.invoke("load-games"),
     saveGames: (games) => ipcRenderer.invoke("save-games", games),
+    checkForUpdates: () => ipcRenderer.invoke("check-for-updates"),
+    getAppVersion: () => ipcRenderer.invoke("get-app-version"),
+    getDataPath: () => ipcRenderer.invoke("get-data-path"),
 })

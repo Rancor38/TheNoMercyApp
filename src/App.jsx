@@ -4,12 +4,17 @@ import noMercyLogo from './assets/no-mercy.png'
 
 function App() {
   const [games, setGames] = useState([])
+  const [hasLoadedData, setHasLoadedData] = useState(false)
   const [newGame, setNewGame] = useState({
     date: new Date().toISOString().split('T')[0],
     mercyBanned: false,
     won: false,
     notes: ''
   })
+  const [appVersion, setAppVersion] = useState('')
+  const [updateStatus, setUpdateStatus] = useState('')
+  const [dataPath, setDataPath] = useState('')
+  const [lastSaveStatus, setLastSaveStatus] = useState('')
 
   // Check if we're in Electron environment
   const isElectron = window.electronAPI !== undefined
@@ -20,6 +25,7 @@ function App() {
       if (isElectron) {
         try {
           const csvData = await window.electronAPI.loadGames()
+          console.log('Loaded games:', csvData?.length || 0, 'games')
           if (csvData) {
             setGames(csvData)
           }
@@ -33,19 +39,69 @@ function App() {
           setGames(JSON.parse(savedGames))
         }
       }
+
+      // Mark that we have completed the initial load
+      setHasLoadedData(true)
     }
 
     loadGames()
   }, [isElectron])
 
+  // Get data path and app info
+  useEffect(() => {
+    const getAppInfo = async () => {
+      if (isElectron) {
+        try {
+          const path = await window.electronAPI.getDataPath()
+          setDataPath(path)
+        } catch (error) {
+          console.error('Error getting data path:', error)
+        }
+      }
+    }
+
+    getAppInfo()
+  }, [isElectron])
+
+  // Get app version and check for updates on startup
+  useEffect(() => {
+    const initializeUpdates = async () => {
+      if (isElectron) {
+        try {
+          const version = await window.electronAPI.getAppVersion()
+          setAppVersion(version)
+          setUpdateStatus('Checking for updates...')
+
+          // Check for updates
+          const updateResult = await window.electronAPI.checkForUpdates()
+          if (updateResult.available) {
+            setUpdateStatus(`Update available: v${updateResult.version}`)
+          } else {
+            setUpdateStatus('Up to date')
+            // Clear status after 3 seconds
+            setTimeout(() => setUpdateStatus(''), 3000)
+          }
+        } catch (error) {
+          console.error('Error checking for updates:', error)
+          setUpdateStatus('Update check failed')
+          setTimeout(() => setUpdateStatus(''), 3000)
+        }
+      }
+    }
+
+    initializeUpdates()
+  }, [isElectron])
+
   // Save games to CSV file via Electron or fallback to localStorage
   useEffect(() => {
-    if (games.length === 0) return // Don't save empty array on initial load
+    // Only save if we have loaded data (prevent saving on initial mount)
+    if (!hasLoadedData) return
 
     const saveGames = async () => {
       if (isElectron) {
         try {
           await window.electronAPI.saveGames(games)
+          console.log('Games saved successfully:', games.length, 'games')
         } catch (error) {
           console.error('Error saving games:', error)
         }
@@ -56,7 +112,41 @@ function App() {
     }
 
     saveGames()
-  }, [games, isElectron])
+  }, [games, isElectron, hasLoadedData])
+
+  const checkForUpdates = async () => {
+    if (!isElectron) return
+
+    setUpdateStatus('Checking for updates...')
+    try {
+      const updateResult = await window.electronAPI.checkForUpdates()
+      if (updateResult.available) {
+        setUpdateStatus(`Update available: v${updateResult.version}`)
+      } else {
+        setUpdateStatus('Up to date')
+        setTimeout(() => setUpdateStatus(''), 3000)
+      }
+    } catch (error) {
+      console.error('Error checking for updates:', error)
+      setUpdateStatus('Update check failed')
+      setTimeout(() => setUpdateStatus(''), 3000)
+    }
+  }
+
+  const manualSave = async () => {
+    if (!isElectron) return
+
+    setLastSaveStatus('Saving...')
+    try {
+      await window.electronAPI.saveGames(games)
+      setLastSaveStatus(`✅ Saved ${games.length} games successfully`)
+      setTimeout(() => setLastSaveStatus(''), 3000)
+    } catch (error) {
+      console.error('Error manually saving games:', error)
+      setLastSaveStatus('❌ Save failed')
+      setTimeout(() => setLastSaveStatus(''), 3000)
+    }
+  }
 
   const addGame = () => {
     const gameWithId = {
@@ -112,9 +202,47 @@ function App() {
           <div className="header-text">
             <h1>No Mercy Tracker</h1>
             <p>Track your Overwatch games and Mercy ban effectiveness</p>
+            {isElectron && (
+              <div className="app-info">
+                <span className="app-version">v{appVersion}</span>
+                {updateStatus && (
+                  <span className={`update-status ${updateStatus.includes('available') ? 'update-available' : ''}`}>
+                    {updateStatus}
+                  </span>
+                )}
+                <button
+                  className="update-check-btn"
+                  onClick={checkForUpdates}
+                  disabled={updateStatus === 'Checking for updates...'}
+                >
+                  Check for Updates
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </header>
+
+      {isElectron && (
+        <div className="debug-section">
+          <details>
+            <summary>Debug Info & Manual Controls</summary>
+            <div className="debug-content">
+              <p><strong>Data File:</strong> {dataPath || 'Loading...'}</p>
+              <p><strong>Games Loaded:</strong> {hasLoadedData ? 'Yes' : 'No'}</p>
+              <p><strong>Games Count:</strong> {games.length}</p>
+              <div className="debug-controls">
+                <button onClick={manualSave} className="save-button">
+                  💾 Manual Save
+                </button>
+                {lastSaveStatus && (
+                  <span className="save-status">{lastSaveStatus}</span>
+                )}
+              </div>
+            </div>
+          </details>
+        </div>
+      )}
 
       <div className="stats-section">
         <div className="stats-grid">

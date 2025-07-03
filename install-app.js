@@ -256,6 +256,68 @@ For issues or updates, visit: https://github.com/your-username/NoMercyTracker-Re
     log(`   ✅ Created installation README`, colors.green)
 }
 
+// Function to automatically open the distribution file
+async function autoOpenDistribution(buildInfo) {
+    try {
+        log(`\n🚀 Opening distribution file...`, colors.cyan)
+
+        const releaseDir = path.join(__dirname, "release")
+        const packageJsonPath = path.join(__dirname, "package.json")
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"))
+        const version = packageJson.version
+
+        let distFileName = ""
+        let openCommand = ""
+
+        if (buildInfo.platform === "mac") {
+            // For macOS, open the appropriate DMG file
+            if (buildInfo.arch === "arm64") {
+                distFileName = `No Mercy Tracker-${version}-arm64.dmg`
+            } else {
+                distFileName = `No Mercy Tracker-${version}.dmg`
+            }
+            openCommand = `open "${path.join(releaseDir, distFileName)}"`
+        } else if (buildInfo.platform === "win") {
+            // For Windows, open the installer
+            distFileName = `No Mercy Tracker Setup ${version}.exe`
+            openCommand = `start "${path.join(releaseDir, distFileName)}"`
+        } else if (buildInfo.platform === "linux") {
+            // For Linux, open the file manager to the release directory
+            openCommand = `xdg-open "${releaseDir}"`
+        }
+
+        const distFilePath = path.join(releaseDir, distFileName)
+
+        if (fs.existsSync(distFilePath)) {
+            execSync(openCommand, { stdio: "inherit" })
+            log(`   ✅ Opened: ${distFileName}`, colors.green)
+        } else {
+            log(
+                `   ⚠️  Distribution file not found: ${distFileName}`,
+                colors.yellow
+            )
+            // Fallback: open the release directory
+            const fallbackCommand =
+                buildInfo.platform === "mac"
+                    ? `open "${releaseDir}"`
+                    : buildInfo.platform === "win"
+                    ? `start "${releaseDir}"`
+                    : `xdg-open "${releaseDir}"`
+            execSync(fallbackCommand, { stdio: "inherit" })
+            log(`   ✅ Opened release directory instead`, colors.green)
+        }
+    } catch (error) {
+        log(
+            `   ⚠️  Could not auto-open distribution: ${error.message}`,
+            colors.yellow
+        )
+        log(
+            `   💡 You can manually open the file from the release/ directory`,
+            colors.cyan
+        )
+    }
+}
+
 async function main() {
     try {
         log(`${colors.bright}${colors.magenta}`, colors.magenta)
@@ -311,6 +373,9 @@ async function main() {
         // Create README with installation instructions
         createReadme(outputDir, buildInfo)
 
+        // Auto-open the distribution file
+        await autoOpenDistribution(buildInfo)
+
         log(
             `\n${colors.bright}${colors.green}🎉 Installation completed successfully!${colors.reset}`
         )
@@ -327,6 +392,19 @@ async function main() {
                 colors.yellow
             )
         }
+
+        log(
+            `\n✨ New in v1.0.1: Enhanced data persistence and debug tools!`,
+            colors.magenta
+        )
+        log(
+            `   📁 Game data now saves to ~/Documents/No Mercy Tracker/`,
+            colors.cyan
+        )
+        log(
+            `   🛠️ Use the debug panel for manual saves and troubleshooting`,
+            colors.cyan
+        )
     } catch (error) {
         log(`\n❌ Installation failed: ${error.message}`, colors.red)
         process.exit(1)
